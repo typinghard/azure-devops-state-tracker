@@ -30,3 +30,6 @@ steps:
 
 - task: SonarSource.sonarcloud.38b27399-a642-40af-bb7d-9971f69712e8.SonarCloudPublish@1
   displayName: 'Publish Quality Gate Result'
+
+- script: 'dotnet publish  --configuration $(BuildConfiguration) --output $(build.artifactstagingdirectory) --no-restore --no-build'
+  displayName: Publish
