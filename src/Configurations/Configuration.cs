@@ -23,19 +23,17 @@ namespace AzureDevopsTracker.Configurations
             services.AddDbContext<AzureDevopsTrackerContext>(options =>
                     options.UseSqlServer(DataBaseConfig.ConnectionsString));
 
-            // Crie o escopo de serviços e aplique as migrações pendentes
-            using (var serviceScope = services.BuildServiceProvider().CreateScope())
+            try
             {
+                using var serviceScope = services.BuildServiceProvider().CreateScope();
                 var dbContext = serviceScope.ServiceProvider.GetRequiredService<AzureDevopsTrackerContext>();
-                // Verifique se há migrações pendentes
-                var pendingMigrations = dbContext.Database.GetPendingMigrations();
 
+                var pendingMigrations = dbContext.Database.GetPendingMigrations();
                 if (pendingMigrations.Any())
-                {
-                    // Aplicar migrações pendentes
                     dbContext.Database.Migrate();
-                }
             }
+            catch
+            { }
 
             services.AddMessageIntegrations();
 
