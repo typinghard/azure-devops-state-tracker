@@ -21,6 +21,7 @@
     <FileVersion>6.0.0</FileVersion>
     <Version>6.0.0</Version>
     <PackageReleaseNotes>Add ChangeLog Feature</PackageReleaseNotes>
+    <Title>Azure DevOps Tracker</Title>
   </PropertyGroup>
 
   <ItemGroup>

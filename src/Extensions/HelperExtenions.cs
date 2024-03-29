@@ -25,7 +25,7 @@ namespace AzureDevopsTracker.Extensions
             if (!user.Contains(" <") && !user.TrimEnd().Contains(">"))
                 return user;
 
-            return user.Split("<").LastOrDefault().Split(">").FirstOrDefault();
+            return user.Split("<").LastOrDefault()?.Split(">")?.FirstOrDefault();
         }
 
         public static string ToTextTime(this TimeSpan timeSpan)

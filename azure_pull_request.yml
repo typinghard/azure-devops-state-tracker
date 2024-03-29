@@ -1,4 +1,5 @@
 pool:
+  vmImage: ubuntu-latest
   name: Azure Pipelines
   demands: java
 
@@ -21,15 +22,8 @@ steps:
 
 - task: CmdLine@2
   inputs:
-    script: dotnet build --no-incremental
-  displayName: 'Run dotnet build'
-
-- task: DotNetCoreCLI@2
-  displayName: 'Run dotnet test'
-  inputs:
-    command: test
-    projects: '**/*[Tt]ests/*.csproj'
-    arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --collect "Code Coverage" /p:Exclude=[xunit.*]*'
+    script: dotnet test --configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --collect "Code Coverage" /p:Exclude=[xunit.*]*
+  displayName: 'Run Tests'
 
 - task: SonarSource.sonarcloud.ce096e50-6155-4de8-8800-4221aaeed4a1.SonarCloudAnalyze@1
   displayName: 'Run Code Analysis'

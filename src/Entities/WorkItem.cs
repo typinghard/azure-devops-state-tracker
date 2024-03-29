@@ -95,7 +95,7 @@ namespace AzureDevopsTracker.Entities
 
         public void AddTimesByState(IEnumerable<TimeByState> timesByState)
         {
-            if (timesByState is not null && !timesByState.Any())
+            if (timesByState is null || timesByState?.Any() == false)
                 return;
 
             foreach (var timeByState in timesByState)
