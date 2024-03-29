@@ -11,7 +11,7 @@ steps:
 - task: NuGetCommand@2
   displayName: 'NuGet restore'
   inputs:
-    restoreSolution: **/AzureDevopsTracker.csproj
+    restoreSolution: '**/*.csproj'
     feedsToUse: config
     nugetConfigPath: packages.config
 
