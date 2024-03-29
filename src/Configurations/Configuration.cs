@@ -15,7 +15,9 @@ namespace AzureDevopsTracker.Configurations
 {
     public static class Configuration
     {
-        public static IServiceCollection AddAzureDevopsTracker(this IServiceCollection services, DataBaseConfig configurations, MessageConfig messageConfig = null)
+        public static IServiceCollection AddAzureDevopsTracker(this IServiceCollection services,
+                                                               DataBaseConfig configurations,
+                                                               MessageConfig messageConfig = null)
         {
             services.AddDbContext<AzureDevopsTrackerContext>(options =>
                     options.UseSqlServer(DataBaseConfig.ConnectionsString));

@@ -57,7 +57,7 @@ namespace AzureDevopsTracker.Services
             if (addWorkItemChange)
                 AddWorkItemChange(workItem, create);
 
-            CheckWorkItemAvailableToChangeLog(workItem, create.Resource.Fields);
+            await CheckWorkItemAvailableToChangeLog(workItem, create.Resource.Fields);
 
             AddCustomFields(workItem);
 
@@ -104,7 +104,7 @@ namespace AzureDevopsTracker.Services
 
             AddWorkItemChange(workItem, update);
 
-            CheckWorkItemAvailableToChangeLog(workItem, update.Resource.Revision.Fields);
+            await CheckWorkItemAvailableToChangeLog(workItem, update.Resource.Revision.Fields);
 
             AddCustomFields(workItem);
 
@@ -218,7 +218,7 @@ namespace AzureDevopsTracker.Services
             return corpo;
         }
 
-        public WorkItemChange ToWorkItemChange(
+        public static WorkItemChange ToWorkItemChange(
             string workItemId, string changedBy,
             string iterationPath, DateTime newDate, string newState,
             string oldState = null, DateTime? oldDate = null)
@@ -226,7 +226,7 @@ namespace AzureDevopsTracker.Services
             return new WorkItemChange(workItemId, changedBy.ExtractEmail(), iterationPath, newDate, newState, oldState, oldDate);
         }
 
-        public void AddWorkItemChange(WorkItem workItem, CreateWorkItemDto create)
+        public static void AddWorkItemChange(WorkItem workItem, CreateWorkItemDto create)
         {
             var workItemChange = ToWorkItemChange(workItem.Id,
                                                   create.Resource.Fields.ChangedBy,
@@ -275,13 +275,13 @@ namespace AzureDevopsTracker.Services
             _workItemRepository.RemoveAllTimeByState(workItem.TimeByStates.ToList());
         }
 
-        public void CheckWorkItemAvailableToChangeLog(WorkItem workItem, Fields fields)
+        public async Task CheckWorkItemAvailableToChangeLog(WorkItem workItem, Fields fields)
         {
             if (workItem.CurrentStatus != "Closed" &&
                 workItem.LastStatus == "Closed" &&
                 workItem.ChangeLogItem is not null &&
                 !workItem.ChangeLogItem.WasReleased)
-                RemoveChangeLogItem(workItem);
+                await RemoveChangeLogItem(workItem);
 
             if (workItem.CurrentStatus != "Closed" ||
                 fields.ChangeLogDescription.IsNullOrEmpty())
@@ -293,7 +293,7 @@ namespace AzureDevopsTracker.Services
                 workItem.ChangeLogItem.Update(workItem.Title, workItem.Type, fields.ChangeLogDescription);
         }
 
-        public bool CheckWorkItemChangeExists(WorkItem workItem, WorkItemChange newWorkItemChange)
+        public static bool CheckWorkItemChangeExists(WorkItem workItem, WorkItemChange newWorkItemChange)
         {
             return workItem.WorkItemsChanges.Any(x => x.NewDate == newWorkItemChange.NewDate &&
                                                       x.OldDate == newWorkItemChange.OldDate &&
@@ -304,18 +304,18 @@ namespace AzureDevopsTracker.Services
                                                       x.TotalWorkedTime == newWorkItemChange.TotalWorkedTime);
         }
 
-        public ChangeLogItem ToChangeLogItem(WorkItem workItem, Fields fields)
+        public static ChangeLogItem ToChangeLogItem(WorkItem workItem, Fields fields)
         {
             return new ChangeLogItem(workItem.Id, workItem.Title, fields.ChangeLogDescription, workItem.Type);
         }
 
-        public void RemoveChangeLogItem(WorkItem workItem)
+        public async Task RemoveChangeLogItem(WorkItem workItem)
         {
             var changeLogItem = _changeLogItemRepository.GetById(workItem.ChangeLogItem?.Id).Result;
             if (changeLogItem is not null)
             {
                 _changeLogItemRepository.Delete(changeLogItem);
-                _changeLogItemRepository.SaveChangesAsync().Wait();
+                await _changeLogItemRepository.SaveChangesAsync();
 
                 workItem.RemoveChangeLogItem();
             }

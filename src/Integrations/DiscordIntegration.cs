@@ -97,7 +97,7 @@ namespace AzureDevopsTracker.Integrations
             public bool IsInline { get; set; }
         }
 
-        private IEnumerable<Field> GetText(ChangeLog changeLog)
+        private static IEnumerable<Field> GetText(ChangeLog changeLog)
         {
             var changeLogItemsAgrupado = changeLog.ChangeLogItems.GroupBy(d => d.WorkItemType);
 

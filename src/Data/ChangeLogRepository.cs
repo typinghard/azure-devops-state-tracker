@@ -1,8 +1,9 @@
 ﻿using AzureDevopsTracker.Data.Context;
 using AzureDevopsTracker.Entities;
 using AzureDevopsTracker.Interfaces.Internals;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace AzureDevopsTracker.Data
 {
@@ -10,9 +11,9 @@ namespace AzureDevopsTracker.Data
     {
         public ChangeLogRepository(AzureDevopsTrackerContext context) : base(context) { }
 
-        public int CountChangeLogsCreatedToday()
+        public async Task<int> CountChangeLogsCreatedToday()
         {
-            return DbSet.Count(x => x.CreatedAt.Date == DateTime.Now.Date);
+            return await DbSet.CountAsync(x => x.CreatedAt.Date == DateTime.Now.Date);
         }
     }
 }
