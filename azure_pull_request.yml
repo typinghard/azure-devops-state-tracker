@@ -3,6 +3,16 @@ pool:
   name: Azure Pipelines
   demands: java
 
+trigger:
+  branches:
+    include:
+      - dev
+      - version-5
+      - 6.0.0
+      - 7.0.0
+    exclude:
+      - '*'
+
 variables:
   buildConfiguration: 'Release'
   prPipeline: $[eq(variables['Build.Reason'], 'PullRequest')]
@@ -19,7 +29,6 @@ steps:
      sonar.cs.opencover.reportsPaths=**/coverage.opencover.xml
      sonar.cs.vscoveragexml.reportsPaths=**/coverage.opencover.xml
      sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
-
 - task: CmdLine@2
   inputs:
     script: dotnet test --configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --collect "Code Coverage" /p:Exclude=[xunit.*]*
