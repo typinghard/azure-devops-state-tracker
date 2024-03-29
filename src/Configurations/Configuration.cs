@@ -10,15 +10,32 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 
 namespace AzureDevopsTracker.Configurations
 {
     public static class Configuration
     {
-        public static IServiceCollection AddAzureDevopsTracker(this IServiceCollection services, DataBaseConfig configurations, MessageConfig messageConfig = null)
+        public static IServiceCollection AddAzureDevopsTracker(this IServiceCollection services,
+                                                               DataBaseConfig configurations,
+                                                               MessageConfig messageConfig = null)
         {
             services.AddDbContext<AzureDevopsTrackerContext>(options =>
                     options.UseSqlServer(DataBaseConfig.ConnectionsString));
+
+            // Crie o escopo de serviços e aplique as migrações pendentes
+            using (var serviceScope = services.BuildServiceProvider().CreateScope())
+            {
+                var dbContext = serviceScope.ServiceProvider.GetRequiredService<AzureDevopsTrackerContext>();
+                // Verifique se há migrações pendentes
+                var pendingMigrations = dbContext.Database.GetPendingMigrations();
+
+                if (pendingMigrations.Any())
+                {
+                    // Aplicar migrações pendentes
+                    dbContext.Database.Migrate();
+                }
+            }
 
             services.AddMessageIntegrations();
 

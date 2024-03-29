@@ -1,8 +1,10 @@
 ﻿using AzureDevopsTracker.Data.Context;
 using AzureDevopsTracker.Entities;
 using AzureDevopsTracker.Interfaces.Internals;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AzureDevopsTracker.Data
 {
@@ -10,14 +12,14 @@ namespace AzureDevopsTracker.Data
     {
         public ChangeLogItemRepository(AzureDevopsTrackerContext context) : base(context) { }
 
-        public int CountItemsForRelease()
+        public async Task<int> CountItemsForRelease()
         {
-            return DbSet.Count(x => string.IsNullOrEmpty(x.ChangeLogId));
+            return await DbSet.CountAsync(x => string.IsNullOrEmpty(x.ChangeLogId));
         }
 
-        public IEnumerable<ChangeLogItem> ListWaitingForRelease()
+        public async Task<IEnumerable<ChangeLogItem>> ListWaitingForRelease()
         {
-            return DbSet.Where(x => string.IsNullOrEmpty(x.ChangeLogId));
+            return await DbSet.Where(x => string.IsNullOrEmpty(x.ChangeLogId)).ToListAsync();
         }
     }
 }

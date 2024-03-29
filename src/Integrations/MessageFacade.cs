@@ -1,6 +1,7 @@
 ﻿using AzureDevopsTracker.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Threading.Tasks;
 
 namespace AzureDevopsTracker.Integrations
 {
@@ -14,14 +15,14 @@ namespace AzureDevopsTracker.Integrations
             _serviceScopeFactory = serviceScopeFactory;
         }
 
-        public void Send(ChangeLog changeLog)
+        public async Task Send(ChangeLog changeLog)
         {
             using var scope = _serviceScopeFactory.CreateScope();
 
             var messageIntegration = scope.ServiceProvider.GetService<MessageIntegration>();
             if (messageIntegration is null) throw new Exception("Configure the MessageConfig in Startup to send changelog messages");
 
-            messageIntegration.Send(changeLog);
+            await messageIntegration.Send(changeLog);
         }
     }
 }

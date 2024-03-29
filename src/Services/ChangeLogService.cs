@@ -5,6 +5,7 @@ using AzureDevopsTracker.Interfaces.Internals;
 using AzureDevopsTracker.Statics;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AzureDevopsTracker.Services
 {
@@ -27,37 +28,37 @@ namespace AzureDevopsTracker.Services
             _messageIntegration = messageIntegration;
         }
 
-        public int CountItemsForRelease()
+        public async Task<int> CountItemsForRelease()
         {
-            return _changeLogItemRepository.CountItemsForRelease();
+            return await _changeLogItemRepository.CountItemsForRelease();
         }
 
-        public ChangeLog Release()
+        public async Task<ChangeLog> Release()
         {
-            var changeLogItems = _changeLogItemRepository.ListWaitingForRelease();
+            var changeLogItems = await _changeLogItemRepository.ListWaitingForRelease();
             if (!changeLogItems.Any()) return null;
 
-            var changeLog = CreateChangeLog();
+            var changeLog = await CreateChangeLog();
             changeLog.AddChangeLogItems(changeLogItems);
 
-            _changeLogRepository.Add(changeLog).Wait();
-            _changeLogRepository.SaveChangesAsync().Wait();
+            await _changeLogRepository.Add(changeLog);
+            await _changeLogRepository.SaveChangesAsync();
 
             return changeLog;
         }
 
-        public string SendToMessengers(ChangeLog changeLog)
+        public async Task<string> SendToMessengers(ChangeLog changeLog)
         {
-            _messageIntegration.Send(changeLog);
+            await _messageIntegration.Send(changeLog);
 
             return $"The ChangeLog {changeLog.Number} was released.";
         }
 
-        private ChangeLog CreateChangeLog()
+        private async Task<ChangeLog> CreateChangeLog()
         {
             if (string.IsNullOrEmpty(_configuration[ConfigurationStatics.ADT_CHANGELOG_VERSION]))
             {
-                var changeLogsQuantity = _changeLogRepository.CountChangeLogsCreatedToday();
+                var changeLogsQuantity = await _changeLogRepository.CountChangeLogsCreatedToday();
                 return new ChangeLog(changeLogsQuantity + 1);
             }
             return new ChangeLog(_configuration[ConfigurationStatics.ADT_CHANGELOG_VERSION]);

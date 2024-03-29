@@ -10,7 +10,7 @@ namespace AzureDevopsTracker.Entities
         public string Description { get; private set; }
         public string WorkItemType { get; private set; }
         public string ChangeLogId { get; private set; }
-        public bool WasReleased => string.IsNullOrEmpty(ChangeLogId?.Trim());
+        public bool WasReleased => string.IsNullOrWhiteSpace(ChangeLogId);
         public ChangeLog ChangeLog { get; private set; }
 
         private ChangeLogItem() { }

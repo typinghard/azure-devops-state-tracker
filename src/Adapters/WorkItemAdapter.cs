@@ -51,7 +51,7 @@ namespace AzureDevopsTracker.Adapters
                      .ToList();
         }
 
-        public WorkItemChangeDto ToWorkItemChangeDto(WorkItemChange workIteChange)
+        public static WorkItemChangeDto ToWorkItemChangeDto(WorkItemChange workIteChange)
         {
             if (workIteChange is null) return null;
 
@@ -65,7 +65,7 @@ namespace AzureDevopsTracker.Adapters
             };
         }
 
-        public List<WorkItemChangeDto> ToWorkItemsChangeDto(List<WorkItemChange> workItemsChanges)
+        public static List<WorkItemChangeDto> ToWorkItemsChangeDto(List<WorkItemChange> workItemsChanges)
         {
             var workItemsChangeDto = new List<WorkItemChangeDto>();
 
@@ -80,7 +80,7 @@ namespace AzureDevopsTracker.Adapters
                      .ToList();
         }
 
-        public TimeByStateDto ToTimeByStateDto(TimeByState workItemStatusTime)
+        public static TimeByStateDto ToTimeByStateDto(TimeByState workItemStatusTime)
         {
             if (workItemStatusTime is null) return null;
 
@@ -93,7 +93,7 @@ namespace AzureDevopsTracker.Adapters
             };
         }
 
-        public List<TimeByStateDto> ToTimeByStatesDto(List<TimeByState> workItemStatusTimes)
+        public static List<TimeByStateDto> ToTimeByStatesDto(List<TimeByState> workItemStatusTimes)
         {
             var workItemStatusTimeDto = new List<TimeByStateDto>();
 
