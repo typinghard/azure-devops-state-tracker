@@ -22,7 +22,7 @@ steps:
 
 - task: CmdLine@2
   inputs:
-    script: dotnet build --configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --collect "Code Coverage" /p:Exclude=[xunit.*]*
+    script: dotnet build --configuration $(BuildConfiguration)
   displayName: 'Run Tests'
 
 - task: CmdLine@2
