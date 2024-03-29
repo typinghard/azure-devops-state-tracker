@@ -139,7 +139,7 @@ namespace AzureDevopsTracker.Entities
         }
 
         #region Private Methods
-        private TimeSpan SubtractDates(DateTime biger, DateTime minor)
+        private static TimeSpan SubtractDates(DateTime biger, DateTime minor)
         {
             if (biger.Hour == minor.Hour)
             {

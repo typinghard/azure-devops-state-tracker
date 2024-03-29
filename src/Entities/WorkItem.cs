@@ -142,7 +142,9 @@ namespace AzureDevopsTracker.Entities
             if (!_workItemsChanges.Any())
                 return timesByStateList;
 
-            foreach (var workItemChange in _workItemsChanges.OrderBy(x => x.CreatedAt).GroupBy(x => x.OldState).Where(x => x.Key is not null))
+            foreach (var workItemChange in _workItemsChanges.OrderBy(x => x.CreatedAt)
+                                                            .GroupBy(x => x.OldState)
+                                                            .Where(x => x.Key is not null))
             {
                 var totalTime = TimeSpan.Zero;
                 var totalWorkedTime = TimeSpan.Zero;

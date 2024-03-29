@@ -5,12 +5,13 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AzureDevopsTracker.Integrations
 {
     internal class DiscordIntegration : MessageIntegration
     {
-        internal override void Send(ChangeLog changeLog)
+        internal override async Task Send(ChangeLog changeLog)
         {
             var embedsDTO = new EmbedsDTO
             {
@@ -26,7 +27,7 @@ namespace AzureDevopsTracker.Integrations
                 },
             };
 
-            Notify(embedsDTO);
+           await Notify(embedsDTO);
         }
 
         public class EmbedsDTO
@@ -97,7 +98,7 @@ namespace AzureDevopsTracker.Integrations
             public bool IsInline { get; set; }
         }
 
-        private IEnumerable<Field> GetText(ChangeLog changeLog)
+        private static IEnumerable<Field> GetText(ChangeLog changeLog)
         {
             var changeLogItemsAgrupado = changeLog.ChangeLogItems.GroupBy(d => d.WorkItemType);
 

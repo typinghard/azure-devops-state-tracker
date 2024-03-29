@@ -1,9 +1,10 @@
 ﻿using AzureDevopsTracker.Entities;
+using System.Threading.Tasks;
 
 namespace AzureDevopsTracker.Integrations
 {
     internal class FakeIntegration : MessageIntegration
     {
-        internal override void Send(ChangeLog changeLog) { }
+        internal override async Task Send(ChangeLog changeLog) { }
     }
 }

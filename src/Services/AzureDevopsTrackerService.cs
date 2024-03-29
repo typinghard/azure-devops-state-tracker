@@ -57,9 +57,9 @@ namespace AzureDevopsTracker.Services
             if (addWorkItemChange)
                 AddWorkItemChange(workItem, create);
 
-            CheckWorkItemAvailableToChangeLog(workItem, create.Resource.Fields);
+            await CheckWorkItemAvailableToChangeLog(workItem, create.Resource.Fields);
 
-            AddCustomFields(workItem);
+            await AddCustomFields(workItem);
 
             await _workItemRepository.Add(workItem);
             await _workItemRepository.SaveChangesAsync();
@@ -81,7 +81,7 @@ namespace AzureDevopsTracker.Services
 
         public async Task Update(UpdatedWorkItemDto update)
         {
-            if (!_workItemRepository.Exist(update.Resource.WorkItemId).Result)
+            if (!await _workItemRepository.Exist(update.Resource.WorkItemId))
                 await Create(update.Resource.WorkItemId, update.Resource.Revision.Fields);
 
             var workItem = await _workItemRepository.GetByWorkItemId(update.Resource.WorkItemId);
@@ -104,9 +104,9 @@ namespace AzureDevopsTracker.Services
 
             AddWorkItemChange(workItem, update);
 
-            CheckWorkItemAvailableToChangeLog(workItem, update.Resource.Revision.Fields);
+            await CheckWorkItemAvailableToChangeLog(workItem, update.Resource.Revision.Fields);
 
-            AddCustomFields(workItem);
+            await AddCustomFields(workItem);
 
             _workItemRepository.Update(workItem);
             await _workItemRepository.SaveChangesAsync();
@@ -114,7 +114,7 @@ namespace AzureDevopsTracker.Services
 
         public async Task Delete(DeleteWorkItemDto delete)
         {
-            if (!_workItemRepository.Exist(delete.Resource.Id).Result)
+            if (!await _workItemRepository.Exist(delete.Resource.Id))
                 await Create(delete.Resource.Id, delete.Resource.Fields);
 
             var workItem = await _workItemRepository.GetByWorkItemId(delete.Resource.Id);
@@ -137,7 +137,7 @@ namespace AzureDevopsTracker.Services
                 delete.Resource.Fields.OriginalEstimate,
                 delete.Resource.Fields.Activity);
 
-            AddCustomFields(workItem);
+            await AddCustomFields(workItem);
 
             _workItemRepository.Update(workItem);
             await _workItemRepository.SaveChangesAsync();
@@ -145,7 +145,7 @@ namespace AzureDevopsTracker.Services
 
         public async Task Restore(RestoreWorkItemDto restore)
         {
-            if (!_workItemRepository.Exist(restore.Resource.Id).Result)
+            if (!await _workItemRepository.Exist(restore.Resource.Id))
                 await Create(restore.Resource.Id, restore.Resource.Fields);
 
             var workItem = await _workItemRepository.GetByWorkItemId(restore.Resource.Id);
@@ -168,7 +168,7 @@ namespace AzureDevopsTracker.Services
                 restore.Resource.Fields.OriginalEstimate,
                 restore.Resource.Fields.Activity);
 
-            AddCustomFields(workItem);
+            await AddCustomFields(workItem);
 
             _workItemRepository.Update(workItem);
             await _workItemRepository.SaveChangesAsync();
@@ -184,11 +184,11 @@ namespace AzureDevopsTracker.Services
         }
 
         #region Support Methods
-        public void AddCustomFields(WorkItem workItem)
+        public async Task AddCustomFields(WorkItem workItem)
         {
             try
             {
-                var jsonText = GetRequestBody();
+                var jsonText = await GetRequestBody();
                 if (jsonText.IsNullOrEmpty())
                     return;
 
@@ -202,7 +202,7 @@ namespace AzureDevopsTracker.Services
             { }
         }
 
-        public string GetRequestBody()
+        public async Task<string> GetRequestBody()
         {
             string corpo;
             var request = _httpContextAccessor?.HttpContext?.Request;
@@ -212,13 +212,13 @@ namespace AzureDevopsTracker.Services
                                              leaveOpen: true))
             {
                 request.Body.Position = 0;
-                corpo = reader.ReadToEndAsync()?.Result;
+                corpo = await reader.ReadToEndAsync();
             }
 
             return corpo;
         }
 
-        public WorkItemChange ToWorkItemChange(
+        public static WorkItemChange ToWorkItemChange(
             string workItemId, string changedBy,
             string iterationPath, DateTime newDate, string newState,
             string oldState = null, DateTime? oldDate = null)
@@ -226,7 +226,7 @@ namespace AzureDevopsTracker.Services
             return new WorkItemChange(workItemId, changedBy.ExtractEmail(), iterationPath, newDate, newState, oldState, oldDate);
         }
 
-        public void AddWorkItemChange(WorkItem workItem, CreateWorkItemDto create)
+        public static void AddWorkItemChange(WorkItem workItem, CreateWorkItemDto create)
         {
             var workItemChange = ToWorkItemChange(workItem.Id,
                                                   create.Resource.Fields.ChangedBy,
@@ -275,13 +275,13 @@ namespace AzureDevopsTracker.Services
             _workItemRepository.RemoveAllTimeByState(workItem.TimeByStates.ToList());
         }
 
-        public void CheckWorkItemAvailableToChangeLog(WorkItem workItem, Fields fields)
+        public async Task CheckWorkItemAvailableToChangeLog(WorkItem workItem, Fields fields)
         {
             if (workItem.CurrentStatus != "Closed" &&
                 workItem.LastStatus == "Closed" &&
                 workItem.ChangeLogItem is not null &&
                 !workItem.ChangeLogItem.WasReleased)
-                RemoveChangeLogItem(workItem);
+                await RemoveChangeLogItem(workItem);
 
             if (workItem.CurrentStatus != "Closed" ||
                 fields.ChangeLogDescription.IsNullOrEmpty())
@@ -293,7 +293,7 @@ namespace AzureDevopsTracker.Services
                 workItem.ChangeLogItem.Update(workItem.Title, workItem.Type, fields.ChangeLogDescription);
         }
 
-        public bool CheckWorkItemChangeExists(WorkItem workItem, WorkItemChange newWorkItemChange)
+        public static bool CheckWorkItemChangeExists(WorkItem workItem, WorkItemChange newWorkItemChange)
         {
             return workItem.WorkItemsChanges.Any(x => x.NewDate == newWorkItemChange.NewDate &&
                                                       x.OldDate == newWorkItemChange.OldDate &&
@@ -304,18 +304,18 @@ namespace AzureDevopsTracker.Services
                                                       x.TotalWorkedTime == newWorkItemChange.TotalWorkedTime);
         }
 
-        public ChangeLogItem ToChangeLogItem(WorkItem workItem, Fields fields)
+        public static ChangeLogItem ToChangeLogItem(WorkItem workItem, Fields fields)
         {
             return new ChangeLogItem(workItem.Id, workItem.Title, fields.ChangeLogDescription, workItem.Type);
         }
 
-        public void RemoveChangeLogItem(WorkItem workItem)
+        public async Task RemoveChangeLogItem(WorkItem workItem)
         {
-            var changeLogItem = _changeLogItemRepository.GetById(workItem.ChangeLogItem?.Id).Result;
+            var changeLogItem = await _changeLogItemRepository.GetById(workItem.ChangeLogItem?.Id);
             if (changeLogItem is not null)
             {
                 _changeLogItemRepository.Delete(changeLogItem);
-                _changeLogItemRepository.SaveChangesAsync().Wait();
+                await _changeLogItemRepository.SaveChangesAsync();
 
                 workItem.RemoveChangeLogItem();
             }

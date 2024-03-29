@@ -3,6 +3,7 @@ using AzureDevopsTracker.Statics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AzureDevopsTracker.Integrations
 {
@@ -38,7 +39,7 @@ namespace AzureDevopsTracker.Integrations
             internal static readonly int CLOSING_DIV_SIZE = 6;
         }
 
-        internal override void Send(ChangeLog changeLog)
+        internal override async Task Send(ChangeLog changeLog)
         {
             var values = new MicrosoftTeamsMessage()
             {
@@ -59,10 +60,10 @@ namespace AzureDevopsTracker.Integrations
                 }
             };
 
-            Notify(values);
+           await Notify(values);
         }
 
-        private string GetText(ChangeLog changeLog)
+        private static string GetText(ChangeLog changeLog)
         {
             if (changeLog is null || !changeLog.ChangeLogItems.Any()) return string.Empty;
 
@@ -74,7 +75,7 @@ namespace AzureDevopsTracker.Integrations
             return text.ToString();
         }
 
-        private string GetWorkItemsDescriptionSection(string sectionName, IEnumerable<ChangeLogItem> changeLogItems)
+        private static string GetWorkItemsDescriptionSection(string sectionName, IEnumerable<ChangeLogItem> changeLogItems)
         {
             StringBuilder text = new();
             if (!changeLogItems.Any()) return string.Empty;
@@ -87,18 +88,18 @@ namespace AzureDevopsTracker.Integrations
             return text.ToString();
         }
 
-        private string GetWorkItemDescriptionLine(ChangeLogItem workItem)
+        private static string GetWorkItemDescriptionLine(ChangeLogItem workItem)
         {
             var description = GetDescription(workItem.Description);
             return $"<em>**{workItem.WorkItemId}**</em> - {description} <br>";
         }
 
-        private string GetDescription(string description)
+        private static string GetDescription(string description)
         {
             return description.Replace("<div>", "").Replace("</div>", "").Replace("<br>", "");
         }
 
-        private string GetFooter()
+        private static string GetFooter()
         {
             return $"<br><sup> <img style='width: 16px; height: 16px;' src='{GetLogoTypingHard16x16Url()}' /> {GetNugetVersion()}</sup>";
         }
