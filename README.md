@@ -6,9 +6,9 @@
 [![Downloads](https://img.shields.io/nuget/dt/AzureDevOpsTracker)](https://www.nuget.org/packages/AzureDevOpsTracker/)
 
 
-**To Talk with us, join our Discord
-<br/>
-[![Discord](https://img.shields.io/discord/901427875301974026?color=%235865f2&label=Join%20Typing%20Hard)](https://discord.gg/pbBNfNAYTH)**
+**To Talk with us, join our Discord**
+
+[![Discord](https://img.shields.io/discord/901427875301974026?color=%235865f2&label=Join%20Typing%20Hard)](https://discord.gg/pbBNfNAYTH)
 
 For a Technology Team Manager, the process improvement in search of agility and productivity is indispensable. For that, data is very important.
 
