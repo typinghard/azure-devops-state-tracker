@@ -20,7 +20,7 @@
     <AssemblyVersion>6.0.0.0</AssemblyVersion>
     <FileVersion>6.0.0</FileVersion>
     <Version>6.0.0</Version>
-    <PackageReleaseNotes>Add ChangeLog Feature</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
